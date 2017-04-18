@@ -1,0 +1,158 @@
+/**
+ * Rudimentary styles for embedding Mastodon statuses (ie. toots)
+ */
+
+@mastodon_embed_font: "Roboto", "Ubuntu Sans", "Nimbus Sans L", "Droid Sans", Arial, sans-serif;
+
+.mastodon-embed {
+
+	font-family: @mastodon_embed_font;
+
+	.activity-stream {
+		box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+		clear: both;
+		
+		.entry {
+			background: #fff;
+		}
+		
+		.entry:first-child:last-child, 
+		.entry:first-child:last-child .detailed-status.light, 
+		.entry:first-child:last-child .status.light {
+			border-radius: 4px;
+		}
+		
+		.entry:last-child,
+		.entry:last-child .detailed-status.light,
+		.entry:last-child .status.light {
+			border-bottom: 0 none;
+		}
+	}
+	
+	.status__content, .reply-indicator__content {
+		font-weight: 400;
+		overflow: hidden;
+		white-space: pre-wrap;
+		word-wrap: break-word;
+	}
+
+
+	.status__content, .reply-indicator__content {
+		p:last-child {
+			margin-bottom: 0;
+		}
+		
+		a {
+			text-decoration: none;
+			
+			.mention:hover span {
+				text-decoration: underline;
+			}
+		}
+		
+	}
+	
+	.status__display-name, .status__relative-time, .detailed-status__display-name, .detailed-status__datetime, .detailed-status__application, .account__display-name {
+		text-decoration: none;
+	}
+	
+	.detailed-status__display-name {
+		color: #d9e1e8;
+		line-height: 24px;
+		
+		strong {
+			font-size: 16px;
+		}
+		
+		strong, span {
+			display: block;
+		}
+	}
+	
+	
+	.avatar {
+		background: transparent none no-repeat scroll 50% center padding-box;
+		border-radius: 4px;
+		position: relative;
+	}
+	
+	
+	.detailed-status {
+		.status__content {
+			font-size: 19px;
+			line-height: 24px;
+		}
+		
+	}
+	
+	.detailed-status.light {
+	
+		background: #fff;
+		cursor: default;
+		padding: 14px;
+
+		.detailed-status__display-name {
+			display: block;
+			margin-bottom: 15px;
+			overflow: hidden;
+			
+			.display-name {
+				display: block;
+				max-width: 100%;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				white-space: nowrap;
+				
+				strong {
+					color: #282c37;
+					font-weight: 500;
+				}
+				
+				span {
+					color: #9baec8;
+					font-size: 14px;
+				}
+			}
+		}
+		
+		.detailed-status__display-name > div {
+			float: left;
+			margin-right: 10px;
+		}
+
+		.avatar {
+			height: 48px;
+			width: 48px;
+			
+			img {
+				border-radius: 4px;
+				display: block;
+			}
+		}
+		
+		
+
+	
+		.status__content {
+			color: #282c37;
+		
+			a {
+				color: #2b90d9;
+			}
+		}
+		
+		
+		 .detailed-status__meta {
+			color: #9baec8;
+			font-size: 14px;
+			line-height: 18px;
+			margin-top: 15px;
+		}
+		
+	}
+	
+
+	
+}
+
+

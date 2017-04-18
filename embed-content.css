@@ -1,0 +1,119 @@
+/**
+ * Rudimentary styles for embedding Mastodon statuses (ie. toots)
+ */
+.mastodon-embed {
+  font-family: "Roboto", "Ubuntu Sans", "Nimbus Sans L", "Droid Sans", Arial, sans-serif;
+}
+.mastodon-embed .activity-stream {
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+  clear: both;
+}
+.mastodon-embed .activity-stream .entry {
+  background: #fff;
+}
+.mastodon-embed .activity-stream .entry:first-child:last-child,
+.mastodon-embed .activity-stream .entry:first-child:last-child .detailed-status.light,
+.mastodon-embed .activity-stream .entry:first-child:last-child .status.light {
+  border-radius: 4px;
+}
+.mastodon-embed .activity-stream .entry:last-child,
+.mastodon-embed .activity-stream .entry:last-child .detailed-status.light,
+.mastodon-embed .activity-stream .entry:last-child .status.light {
+  border-bottom: 0 none;
+}
+.mastodon-embed .status__content,
+.mastodon-embed .reply-indicator__content {
+  font-weight: 400;
+  overflow: hidden;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+.mastodon-embed .status__content p:last-child,
+.mastodon-embed .reply-indicator__content p:last-child {
+  margin-bottom: 0;
+}
+.mastodon-embed .status__content a,
+.mastodon-embed .reply-indicator__content a {
+  text-decoration: none;
+}
+.mastodon-embed .status__content a .mention:hover span,
+.mastodon-embed .reply-indicator__content a .mention:hover span {
+  text-decoration: underline;
+}
+.mastodon-embed .status__display-name,
+.mastodon-embed .status__relative-time,
+.mastodon-embed .detailed-status__display-name,
+.mastodon-embed .detailed-status__datetime,
+.mastodon-embed .detailed-status__application,
+.mastodon-embed .account__display-name {
+  text-decoration: none;
+}
+.mastodon-embed .detailed-status__display-name {
+  color: #d9e1e8;
+  line-height: 24px;
+}
+.mastodon-embed .detailed-status__display-name strong {
+  font-size: 16px;
+}
+.mastodon-embed .detailed-status__display-name strong,
+.mastodon-embed .detailed-status__display-name span {
+  display: block;
+}
+.mastodon-embed .avatar {
+  background: transparent none no-repeat scroll 50% center padding-box;
+  border-radius: 4px;
+  position: relative;
+}
+.mastodon-embed .detailed-status .status__content {
+  font-size: 19px;
+  line-height: 24px;
+}
+.mastodon-embed .detailed-status.light {
+  background: #fff;
+  cursor: default;
+  padding: 14px;
+}
+.mastodon-embed .detailed-status.light .detailed-status__display-name {
+  display: block;
+  margin-bottom: 15px;
+  overflow: hidden;
+}
+.mastodon-embed .detailed-status.light .detailed-status__display-name .display-name {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.mastodon-embed .detailed-status.light .detailed-status__display-name .display-name strong {
+  color: #282c37;
+  font-weight: 500;
+}
+.mastodon-embed .detailed-status.light .detailed-status__display-name .display-name span {
+  color: #9baec8;
+  font-size: 14px;
+}
+.mastodon-embed .detailed-status.light .detailed-status__display-name > div {
+  float: left;
+  margin-right: 10px;
+}
+.mastodon-embed .detailed-status.light .avatar {
+  height: 48px;
+  width: 48px;
+}
+.mastodon-embed .detailed-status.light .avatar img {
+  border-radius: 4px;
+  display: block;
+}
+.mastodon-embed .detailed-status.light .status__content {
+  color: #282c37;
+}
+.mastodon-embed .detailed-status.light .status__content a {
+  color: #2b90d9;
+}
+.mastodon-embed .detailed-status.light .detailed-status__meta {
+  color: #9baec8;
+  font-size: 14px;
+  line-height: 18px;
+  margin-top: 15px;
+}
