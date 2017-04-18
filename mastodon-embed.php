@@ -3,7 +3,7 @@
  * Plugin Name: Mastodon Embed Improved
  * Plugin URI: http://f2w.de/mastodon-embed
  * Description: A plugin to embed Mastodon statuses. Complete rewrite of <a href="https://github.com/DavidLibeau/mastodon-tools">Mastodon embed</a> by David Libeau. Tested up to WP 4.8-nightly
- * Version: 2.1
+ * Version: 2.2
  * Author: Fabian Wolf
  * License: GNU GPL v2 or later
  *
@@ -17,6 +17,7 @@
  * - direct embed with reverse-engineered CSS file (including LESS base) and override option (filter: mastodon_embed_content_style)
  * - uses different shortcode ('mastodon_embed' instead of 'mastodon') if the original mastodon-embed is active as well
  * - uses simple_html_dom instead of XPath
+ * - cache refresh via attribute ('flush')
  */
 
 if( !class_exists( 'simple_html_dom' ) ) {
@@ -110,10 +111,11 @@ class __mastodon_embed_plugin {
 			'width' => 700,
 			'height' => 200,
 			'css' => 'overflow: hidden',
-			'cache_timeout' => 0, // in seconds
+			'cache_timeout' => 24 * 60 * 60, // in seconds; defaults to 1 day
 			'no_iframe' => 0, // workaround for localhost / testing purposes
 			'disable_font_awesome' => 0,
 			'no_fa' => 0,
+			'flush' => 0, // intentionally flush the cache
 		);
 		
 		$atts = shortcode_atts( $default_atts, $atts );
@@ -147,7 +149,9 @@ class __mastodon_embed_plugin {
 				'sslverify' => false,
 			); 
 			
-			$cache_response = get_transient( $transient_name . $url_hash );
+			if( empty( $flush ) ) {
+				$cache_response = get_transient( $transient_name . $url_hash );
+			}
 			
 			if( empty( $cache_response ) ) {
 				$response = wp_remote_get( $url, $args );
@@ -273,6 +277,30 @@ class __mastodon_embed_plugin {
 		
 		return $return;
 	}
+	
+	/**
+	 * NOTE: Added for possible future enhancements, including storing already parsed toots in a meta field (= temporary / cache)
+	 */
+	
+	function get_post_id( $strict_mode = false ) {
+		global $post;
+		$return = 0;
+		
+		if( !empty( $strict_mode ) ) {
+			$current_post = sanitize_post( $GLOBALS['wp_the_query']->get_queried_object() );
+  
+			if( !empty( $current_post) && !empty( $current_post->ID ) ) {
+				$return = $current_post->ID;
+			}
+		} else {
+		
+			if( !empty( $post ) && isset( $post->ID ) ) {
+				$return = $post->ID;
+			}
+		}
+		return $return;
+	}
+	
 }
 
 // init plugin

@@ -6,6 +6,7 @@ Tested up to: 4.8
 Stable tag: trunk
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
+Version: 2.2
 
 Includes simple_html_dom DOM Parser (Revision 210), which is licensed under The MIT License (http://sourceforge.net/projects/simplehtmldom/)
 
@@ -24,6 +25,7 @@ Currently implemented features:
 * Reverse-engineered CSS file (including LESS base) and override option (filter: mastodon_embed_content_style)
 * Uses different shortcode ('mastodon_embed' instead of 'mastodon') if the original mastodon-embed is active as well
 * Uses simple_html_dom class instead of XPath
+* Optional manual cache refresh option via shortcode attribute
 
 = Future plans = 
 
@@ -66,12 +68,18 @@ All available shortcode attributes:
 * no_iframe - Disable iframe embed and use the direct content embedding instead. Automatically will load the custom CSS file, too.
 * disable_font_awesome - Disable loading of Font Awesome when using the direct content embed (see above attribute), eg. if your theme is already including Font Awesome or you want to use different font icons (which have to be compatible to Font Awesome though).
 * no_fa' - Alias
+* flush - set this to 1 to refresh the embed cache; update post after this, give its frontend view a spin, and then remove it afterwards ;)
 
 = Q. I have a question =
 A. Chances are, someone else has asked it. Either check out the support forum at WP or take a look at the official issue tracker:
 http://github.com/ginsterbusch/mastodon-embed/issues
 
 == Changelog ==
+
+= 2.2 =
+
+* Fix: Corrected the cache_timeout (originally a constant was used, but I removed it from default usage and forgot to set the default attribute to something sensible); now set to 1 day (in seconds)
+* Added the shortcode attribute 'flush' to enable manual cache refreshing
 
 = 2.1 =
 
