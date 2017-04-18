@@ -15,7 +15,7 @@ A plugin to embed Mastodon statuses. Complete rewrite of [Mastodon embed](https:
 
 Currently implemented features:
 
-* complete rewrite as class of mastodon-embed (originally by David Libeau)
+* complete rewrite of mastodon-embed (originally by David Libeau) as class
 * multiple embeds
 * working caching
 * proper shortcode initialization
@@ -42,9 +42,9 @@ Your votes really make a difference! Thanks.
 
 == Installation ==
 
-1. Upload 'mastodon-embed-improved' to the '/wp-content/plugins/' directory
+1. Upload 'mastodon-embed' to the '/wp-content/plugins/' directory
 2. Activate the plugin through the 'Plugins' menu in WordPress
-3. Edit an existing post or create a new one
+3. Edit an existing post or page - or create a new one
 4. Insert toot / status URL and surround it with the shortcode '[mastodon_embed]' (eg. `[mastodon_embed]http://my.mastodon.instance/@mastodon_user/12345[/mastodon_embed]`)
 5. Read the documentation for better customization :)
 
@@ -69,7 +69,7 @@ All available shortcode attributes:
 
 = Q. I have a question =
 A. Chances are, someone else has asked it. Either check out the support forum at WP or take a look at the official issue tracker:
-http://github.com/ginsterbusch/mastodon-embed-improved/issues
+http://github.com/ginsterbusch/mastodon-embed/issues
 
 == Changelog ==
 
