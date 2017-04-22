@@ -1,18 +1,17 @@
 === Mastodon Embed Improved ===
 Contributors: usability.idealist
-Tags: mastodon, social networks, social, opensocial, twitter, embed, shortcode, status
+Tags: mastodon, social networks, social, opensocial, twitter, embed, shortcode, status, toot
 Requires at least: 4.5
 Tested up to: 4.8
-Stable tag: trunk
-License: GPLv2
+Stable tag: 2.2
+License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
-Version: 2.2
 
-Includes simple_html_dom DOM Parser (Revision 210), which is licensed under The MIT License (http://sourceforge.net/projects/simplehtmldom/)
+Plugin to easily embed Mastodon statuses (so-called "toot").
 
 == Description ==
 
-A plugin to embed Mastodon statuses. Complete rewrite of [Mastodon embed](https://github.com/DavidLibeau/mastodon-tools) by David Libeau. Tested up to WP 4.8-nightly
+A plugin to embed Mastodon statuses. Complete rewrite of [Mastodon embed](https://github.com/DavidLibeau/mastodon-tools) by David Libeau.
 
 Currently implemented features:
 
@@ -21,9 +20,9 @@ Currently implemented features:
 * working caching
 * proper shortcode initialization
 * backward compatiblity for mastodon-embed
-* fallback to "direct" embeds if embed via iframe is forbidden (eg. when testing on localhost); use shortcode attribute `no_iframe` and set it to `1` (eg. `[mastodon_embed no_iframe="1"]http://my.mastodon.instance/@mastodon_user/12345[/mastodon_embed]`)
-* Reverse-engineered CSS file (including LESS base) and override option (filter: mastodon_embed_content_style)
-* Uses different shortcode ('mastodon_embed' instead of 'mastodon') if the original mastodon-embed is active as well
+* fallback to "direct" embeds if embed via iframe is forbidden (eg. when testing on localhost); use shortcode attribute `no_iframe` and set it to `1` (eg. `[mastodon no_iframe="1"]http://my.mastodon.instance/@mastodon_user/12345[/mastodon]`)
+* Reverse-engineered CSS file (including LESS base) and override option (filter: mastodon_content_style)
+* Uses different shortcode ('mastodon' instead of 'mastodon') if the original mastodon-embed is active as well
 * Uses simple_html_dom class instead of XPath
 * Optional manual cache refresh option via shortcode attribute
 
@@ -32,6 +31,10 @@ Currently implemented features:
 * Shortcode insertion via a nice user interface in the editor
 * Maybe a settings page or a custom config file
 * Properly implemented shortcode asset loading via a separate class / plugin
+
+= Third-party libraries =
+
+* Includes the [simple_html_dom](http://sourceforge.net/projects/simplehtmldom/) DOM Parser class (Revision 210), which is licensed under The MIT License (aka Expat License)
 
 = Website =
 
@@ -47,15 +50,15 @@ Your votes really make a difference! Thanks.
 1. Upload 'mastodon-embed' to the '/wp-content/plugins/' directory
 2. Activate the plugin through the 'Plugins' menu in WordPress
 3. Edit an existing post or page - or create a new one
-4. Insert toot / status URL and surround it with the shortcode '[mastodon_embed]' (eg. `[mastodon_embed]http://my.mastodon.instance/@mastodon_user/12345[/mastodon_embed]`)
+4. Insert toot / status URL and surround it with the shortcode '[mastodon]' (eg. `[mastodon]http://my.mastodon.instance/@mastodon_user/12345[/mastodon]`)
 5. Read the documentation for better customization :)
 
 == Frequently Asked Questions ==
 
 = Shortcode documentation =
 
-Regular shortcode: `[mastodon_embed]http://my.mastodon.instance/@mastodon_user/12345[/mastodon_embed]`
-Shortcode using direct embed method: `[mastodon_embed no_iframe="1"]http://my.mastodon.instance/@mastodon_user/12345[/mastodon_embed]``
+Regular shortcode: `[mastodon]http://my.mastodon.instance/@mastodon_user/12345[/mastodon]`
+Shortcode using direct embed method: `[mastodon no_iframe="1"]http://my.mastodon.instance/@mastodon_user/12345[/mastodon]``
 
 All available shortcode attributes:
 
@@ -70,11 +73,19 @@ All available shortcode attributes:
 * no_fa' - Alias
 * flush - set this to 1 to refresh the embed cache; update post after this, give its frontend view a spin, and then remove it afterwards ;)
 
+= Q. The embedding does not work =
+A. First test if there are any shortcode-interferring plugins. That could also be the original mastodon-embed. Aside of that, there was a mistake in the documentation before version 2.2.3, incorrectly stating the shortcode tag is 'mastodon_embed', while in reality it's **mastodon**.
+
 = Q. I have a question =
 A. Chances are, someone else has asked it. Either check out the support forum at WP or take a look at the official issue tracker:
 http://github.com/ginsterbusch/mastodon-embed/issues
 
 == Changelog ==
+
+= 2.2.3 =
+
+* Fix: Fixed 
+* Improved WP_DEBUG behaviour - if WP_DEBUG_LOG is enabled, or WP_DEBUG_DISPLAY is set to false, the debugging data will not be displayed, EVEN IF the current user has the 'manage_options' capability (ie. administrator level).
 
 = 2.2 =
 

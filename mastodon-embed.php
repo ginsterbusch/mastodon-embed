@@ -3,7 +3,7 @@
  * Plugin Name: Mastodon Embed Improved
  * Plugin URI: http://f2w.de/mastodon-embed
  * Description: A plugin to embed Mastodon statuses. Complete rewrite of <a href="https://github.com/DavidLibeau/mastodon-tools">Mastodon embed</a> by David Libeau. Tested up to WP 4.8-nightly
- * Version: 2.2
+ * Version: 2.2.3
  * Author: Fabian Wolf
  * License: GNU GPL v2 or later
  *
@@ -18,6 +18,7 @@
  * - uses different shortcode ('mastodon_embed' instead of 'mastodon') if the original mastodon-embed is active as well
  * - uses simple_html_dom instead of XPath
  * - cache refresh via attribute ('flush')
+ * - improved debugging (WP_DEBUG + extended constants)
  */
 
 if( !class_exists( 'simple_html_dom' ) ) {
@@ -28,7 +29,8 @@ class __mastodon_embed_plugin {
 	public 	$pluginName = 'Mastodon Embed Improved',
 			$pluginPrefix = 'mastodon_embed_';
 	
-	public $shortcode_name = 'mastodon';
+	public 	$shortcode_name = 'mastodon',
+			$is_compatiblity_mode = false;
 	/**
 	 * Plugin instance.
 	 *
@@ -55,8 +57,10 @@ class __mastodon_embed_plugin {
 			
 			// check if the original mastodon is active and change the shortcode name accordingly
 			if( function_exists( 'mastodon_embed_callback' ) ) {
+				$this->is_compatiblity_mode = true;
 				$this->shortcode_name = 'mastodon_embed';
 			}
+			
 			
 			$this->init_assets();
 			
@@ -89,8 +93,18 @@ class __mastodon_embed_plugin {
 	 */
 	function is_debug() {
 		$return = false;
-		if( ( defined( 'WP_DEBUG' ) && WP_DEBUG != false) || current_user_can( 'manage_options' ) != false ) {
+		if( ( defined( 'WP_DEBUG' ) && WP_DEBUG != false ) || current_user_can( 'manage_options' ) != false ) {
 			$return = true;
+		}
+		
+		/**
+		 * Enhanced mode
+		 * NOTE: Looks a bit awkward, but this stuff is reallly complicated to handle .. o.O
+		 */
+		if( defined( 'WP_DEBUG' ) && WP_DEBUG != false ) {
+			if( ( defined('WP_DEBUG_LOG' ) && WP_DEBUG_LOG != false ) || ( defined( 'WP_DEBUG_DISPLAY' ) && WP_DEBUG_DISPLAY == false ) ) {
+				$return = false;
+			}
 		}
 		
 		return $return;
@@ -220,7 +234,13 @@ class __mastodon_embed_plugin {
 							if( !empty( $host_url ) ) {
 
 								foreach( $embed_content->find( 'img' ) as $image ) {
-									$image->src =  esc_url( '//' .$host_url . $image->src );
+									/**
+									 * NOTE: Explicitely check for pre-existing URL scheme - to avoid display issues.
+									 */
+									
+									if( strpos( $image->src, 'http://' ) === false && strpos( $image->src, 'https://' ) === false ) {
+										$image->src =  esc_url( '//' .$host_url . $image->src );
+									}
 								}
 							}
 						}
@@ -235,12 +255,12 @@ class __mastodon_embed_plugin {
 			}
 		}
 		
-		if( $this->is_debug() != false ) {
+		if( $this->is_debug() != false || !empty( $enable_debug ) ) {
 			$debug = "\n\nDebug:\n" . $debug . print_r( array( 
 				'content' => $content,
 				'url' => $url,
 				'attributes' => $atts,
-				'response_code' => $httpCode,
+				'response_code' => $http_code,
 				'response_body' => $body,
 			), true ) . "\n";
 		}
@@ -256,9 +276,8 @@ class __mastodon_embed_plugin {
 		/**
 		 * NOTE: Wrap return code with container div
 		 */
-	
-		 
-		if( !empty( $return ) && empty( $error ) ) {
+	 
+		if( !empty( $return ) && empty( $error ) ) { // avoids adding the debug data twice!
 			$strWrap = '<div class="' . $container_class . '">%s</div>';
 			
 			/*
@@ -273,8 +292,7 @@ class __mastodon_embed_plugin {
 				$return .= "\n<!-- mastodon embed: $debug -->\n\n";
 			}
 		}
-
-		
+	
 		return $return;
 	}
 	
