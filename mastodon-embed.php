@@ -3,7 +3,7 @@
  * Plugin Name: Mastodon Embed Improved
  * Plugin URI: http://f2w.de/mastodon-embed
  * Description: A plugin to embed Mastodon statuses. Complete rewrite of <a href="https://github.com/DavidLibeau/mastodon-tools">Mastodon embed</a> by David Libeau. Tested up to WP 4.8-nightly
- * Version: 2.2.3
+ * Version: 2.3
  * Author: Fabian Wolf
  * License: GNU GPL v2 or later
  *
@@ -19,6 +19,8 @@
  * - uses simple_html_dom instead of XPath
  * - cache refresh via attribute ('flush')
  * - improved debugging (WP_DEBUG + extended constants)
+ * - alias for no_iframe attribute: disable_iframe
+ * - force URL scheme attribute ('force_scheme') to further improve SSL only vs. unencrypted http-only sites (ie. fun with SSL enforcement in WP ;))
  */
 
 if( !class_exists( 'simple_html_dom' ) ) {
@@ -127,7 +129,9 @@ class __mastodon_embed_plugin {
 			'css' => 'overflow: hidden',
 			'cache_timeout' => 24 * 60 * 60, // in seconds; defaults to 1 day
 			'no_iframe' => 0, // workaround for localhost / testing purposes
+			'disable_iframe' => 0, // alias
 			'disable_font_awesome' => 0,
+			'force_scheme' => '',
 			'no_fa' => 0,
 			'flush' => 0, // intentionally flush the cache
 		);
@@ -183,6 +187,13 @@ class __mastodon_embed_plugin {
 			$http_code = wp_remote_retrieve_response_code($response);
 			$body = wp_remote_retrieve_body( $response );
 			
+			if( !empty( $no_iframe ) || !empty( $disable_iframe ) ) {
+				if( !empty( $disable_iframe ) ) {
+					$no_iframe = true;
+				}
+			
+			}
+			
 			/**
 			 * NOTE: Switch case is so much easier .. not to mention a proper $return.
 			 */
@@ -204,12 +215,25 @@ class __mastodon_embed_plugin {
 					$dom = new simple_html_dom();
 					$dom->load( $body );
 					
+				
+					
+					
 					if( empty( $no_iframe ) ) { // use iframe
 						$atom_url = $dom->find( "link[type='application/atom+xml']", 0);
 						
 						
 						//$embedUrl = str_replace(".atom", "/embed", $atomUrl[0]->getAttribute("href"));
 						$embed_url = str_replace('.atom', '/embed', $atom_url->href );
+						
+						if( !empty( $force_scheme ) && in_array( $force_scheme, array( 'http', 'https' ), true ) != false ) {
+							
+							$host_scheme = parse_url( $embed_url, PHP_URL_SCHEME );
+							
+							if( $host_scheme != $force_scheme ) {
+								$embed_url = str_replace( $host_scheme, $force_scheme, $embed_url );
+							}
+						}
+						
 						
 						$return = '<iframe src="' . $embed_url . '" style="'.$css.'" frameborder="0" width="' . $width . '" height="' . $height . '" scrolling="no"></iframe>';
 						
@@ -239,8 +263,9 @@ class __mastodon_embed_plugin {
 									 */
 									
 									if( strpos( $image->src, 'http://' ) === false && strpos( $image->src, 'https://' ) === false ) {
-										$image->src =  esc_url( '//' .$host_url . $image->src );
+										$image->src = esc_url( '//' .$host_url . $image->src );
 									}
+									
 								}
 							}
 						}
@@ -259,6 +284,7 @@ class __mastodon_embed_plugin {
 			$debug = "\n\nDebug:\n" . $debug . print_r( array( 
 				'content' => $content,
 				'url' => $url,
+				'embed_url' => $embed_url,
 				'attributes' => $atts,
 				'response_code' => $http_code,
 				'response_body' => $body,

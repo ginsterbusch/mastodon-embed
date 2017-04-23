@@ -3,7 +3,7 @@ Contributors: usability.idealist
 Tags: mastodon, social networks, social, opensocial, twitter, embed, shortcode, status, toot
 Requires at least: 4.5
 Tested up to: 4.8
-Stable tag: 2.2
+Stable tag: 2.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -25,11 +25,14 @@ Currently implemented features:
 * Uses different shortcode ('mastodon' instead of 'mastodon') if the original mastodon-embed is active as well
 * Uses simple_html_dom class instead of XPath
 * Optional manual cache refresh option via shortcode attribute
+* improved debugging (WP_DEBUG + extended constants)
+* Force URL scheme attribute ('force_scheme') to further improve SSL only vs. unencrypted http-only sites (ie. fun with SSL enforcement in WP ;))
 
 = Future plans = 
 
-* Shortcode insertion via a nice user interface in the editor
+* Create an oEmbed-like embedding option (ie. just drop the URL into your post and its being automagickally turned into a proper Mastodon status embed)
 * Maybe a settings page or a custom config file
+* Shortcode insertion via a nice user interface in the editor
 * Properly implemented shortcode asset loading via a separate class / plugin
 
 = Third-party libraries =
@@ -69,9 +72,11 @@ All available shortcode attributes:
 * css - Custom CSS for the iframe; Defaults to: `overflow: hidden`.
 * cache_timeout - Defaults to 24 * 60 * 60 = 1 day. After this duration, the Mastodon status URL will be refreshed.
 * no_iframe - Disable iframe embed and use the direct content embedding instead. Automatically will load the custom CSS file, too.
+* disable_iframe - Alias for 'no_iframe'.
 * disable_font_awesome - Disable loading of Font Awesome when using the direct content embed (see above attribute), eg. if your theme is already including Font Awesome or you want to use different font icons (which have to be compatible to Font Awesome though).
 * no_fa' - Alias
 * flush - set this to 1 to refresh the embed cache; update post after this, give its frontend view a spin, and then remove it afterwards ;)
+* force_scheme - set this to either 'http' or 'https' to enforce using this URL scheme (ie. protocol); primary use is to improve the SSL behaviour in WP
 
 = Q. The embedding does not work =
 A. First test if there are any shortcode-interferring plugins. That could also be the original mastodon-embed. Aside of that, there was a mistake in the documentation before version 2.2.3, incorrectly stating the shortcode tag is 'mastodon_embed', while in reality it's **mastodon**.
@@ -82,9 +87,13 @@ http://github.com/ginsterbusch/mastodon-embed/issues
 
 == Changelog ==
 
+= 2.3 =
+
+* Fixed weird SSL embed behaviour (for now)
+* Added the shortcode attribute 'force_scheme' to improve SSL usage
+
 = 2.2.3 =
 
-* Fix: Fixed 
 * Improved WP_DEBUG behaviour - if WP_DEBUG_LOG is enabled, or WP_DEBUG_DISPLAY is set to false, the debugging data will not be displayed, EVEN IF the current user has the 'manage_options' capability (ie. administrator level).
 
 = 2.2 =
