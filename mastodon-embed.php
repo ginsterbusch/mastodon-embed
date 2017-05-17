@@ -3,8 +3,9 @@
  * Plugin Name: Mastodon Embed Improved
  * Plugin URI: http://f2w.de/mastodon-embed
  * Description: A plugin to embed Mastodon statuses. Complete rewrite of <a href="https://github.com/DavidLibeau/mastodon-tools">Mastodon embed</a> by David Libeau. Tested up to WP 4.8-nightly
- * Version: 2.3
+ * Version: 2.3.4
  * Author: Fabian Wolf
+ * Author URI: http://usability-idealist.de
  * License: GNU GPL v2 or later
  *
  * Features:
@@ -21,6 +22,7 @@
  * - improved debugging (WP_DEBUG + extended constants)
  * - alias for no_iframe attribute: disable_iframe
  * - force URL scheme attribute ('force_scheme') to further improve SSL only vs. unencrypted http-only sites (ie. fun with SSL enforcement in WP ;))
+ * - pick out specific single toot ('center'; enabled by default; to display the complete conversation, set to 0);
  */
 
 if( !class_exists( 'simple_html_dom' ) ) {
@@ -134,6 +136,8 @@ class __mastodon_embed_plugin {
 			'force_scheme' => '',
 			'no_fa' => 0,
 			'flush' => 0, // intentionally flush the cache
+			'center' => 1, // picks out only the main toot out of a conversation (entry-center class)
+			'enable_debug' => 0, // specific debug parameter
 		);
 		
 		$atts = shortcode_atts( $default_atts, $atts );
@@ -239,8 +243,17 @@ class __mastodon_embed_plugin {
 						
 					} else { // use direct embed
 						$embed_content = $dom->find( '.activity-stream', 0 );
-						
+							
 						if( !empty( $embed_content ) ) {
+							if( !empty( $center ) ) {
+								$center_content = $embed_content->find( '.entry-center', 0 );
+								
+								if( !empty( $center_content ) ) {
+									$_embed_content = $embed_content; // backup original
+									$embed_content = $center_content; // replace it with the "focused" toot
+								}
+							}
+							
 							wp_enqueue_style( $this->pluginPrefix . 'content' );
 							
 							if( empty( $disable_font_awesome ) && empty( $no_fa ) ) {

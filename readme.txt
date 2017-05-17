@@ -3,7 +3,7 @@ Contributors: usability.idealist
 Tags: mastodon, social networks, social, opensocial, twitter, embed, shortcode, status, toot
 Requires at least: 4.5
 Tested up to: 4.8
-Stable tag: 2.3
+Stable tag: 2.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -27,6 +27,7 @@ Currently implemented features:
 * Optional manual cache refresh option via shortcode attribute
 * improved debugging (WP_DEBUG + extended constants)
 * Force URL scheme attribute ('force_scheme') to further improve SSL only vs. unencrypted http-only sites (ie. fun with SSL enforcement in WP ;))
+* Center on a specific toot in a conversation ('center'); enabled by default
 
 = Future plans = 
 
@@ -77,6 +78,8 @@ All available shortcode attributes:
 * no_fa' - Alias
 * flush - set this to 1 to refresh the embed cache; update post after this, give its frontend view a spin, and then remove it afterwards ;)
 * force_scheme - set this to either 'http' or 'https' to enforce using this URL scheme (ie. protocol); primary use is to improve the SSL behaviour in WP
+* center - Pick out a specific toot from a conversation. Enabled by default. To disable, set this parameter to `0`.
+* enable_debug - Explicitely enables the debug mode
 
 = Q. The embedding does not work =
 A. First test if there are any shortcode-interferring plugins. That could also be the original mastodon-embed. Aside of that, there was a mistake in the documentation before version 2.2.3, incorrectly stating the shortcode tag is 'mastodon_embed', while in reality it's **mastodon**.
@@ -86,6 +89,11 @@ A. Chances are, someone else has asked it. Either check out the support forum at
 http://github.com/ginsterbusch/mastodon-embed/issues
 
 == Changelog ==
+
+= 2.4 =
+
+* Added function to automatically pick out a single status from a conversation; enabled by default
+* Fixed missing 'enable_debug' parameter
 
 = 2.3 =
 
