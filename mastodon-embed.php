@@ -3,7 +3,7 @@
  * Plugin Name: Mastodon Embed Improved
  * Plugin URI: http://f2w.de/mastodon-embed
  * Description: A plugin to embed Mastodon statuses. Complete rewrite of <a href="https://github.com/DavidLibeau/mastodon-tools">Mastodon embed</a> by David Libeau. Tested up to WP 4.8-nightly
- * Version: 2.3.4
+ * Version: 2.4.3
  * Author: Fabian Wolf
  * Author URI: http://usability-idealist.de
  * License: GNU GPL v2 or later
@@ -22,7 +22,7 @@
  * - improved debugging (WP_DEBUG + extended constants)
  * - alias for no_iframe attribute: disable_iframe
  * - force URL scheme attribute ('force_scheme') to further improve SSL only vs. unencrypted http-only sites (ie. fun with SSL enforcement in WP ;))
- * - pick out specific single toot ('center'; enabled by default; to display the complete conversation, set to 0);
+ * - automatically picks out specific single toot; to display the complete conversation, set 'no_center' to 1; also, only works with "direct" toot embedding (ie. parameter "no_iframe" set to 1)
  */
 
 if( !class_exists( 'simple_html_dom' ) ) {
@@ -136,7 +136,8 @@ class __mastodon_embed_plugin {
 			'force_scheme' => '',
 			'no_fa' => 0,
 			'flush' => 0, // intentionally flush the cache
-			'center' => 1, // picks out only the main toot out of a conversation (entry-center class)
+			/*'center' => 1, // picks out only the main toot out of a conversation (entry-center class)*/
+			'no_center' => 0, // disable "centering" function
 			'enable_debug' => 0, // specific debug parameter
 		);
 		
@@ -245,12 +246,17 @@ class __mastodon_embed_plugin {
 						$embed_content = $dom->find( '.activity-stream', 0 );
 							
 						if( !empty( $embed_content ) ) {
-							if( !empty( $center ) ) {
-								$center_content = $embed_content->find( '.entry-center', 0 );
+							//if( $this->is_empty_attr( $params['center'] ) == false ) {
+							if( empty( $no_center ) ) {
+								$centered_content = $embed_content->find( '.entry-center', 0 );
 								
-								if( !empty( $center_content ) ) {
+								if( !empty( $centered_content ) ) {	
 									$_embed_content = $embed_content; // backup original
-									$embed_content = $center_content; // replace it with the "focused" toot
+									
+									// fetch complete class to wrap the centered content into (ie. avoids breaking the CSS)
+									$strCenteredWrap = '<div class="' . $embed_content->class . '">%s</div>';
+									
+									$embed_content = $centered_content; // replace it with the "focused" toot
 								}
 							}
 							
@@ -319,6 +325,10 @@ class __mastodon_embed_plugin {
 		if( !empty( $return ) && empty( $error ) ) { // avoids adding the debug data twice!
 			$strWrap = '<div class="' . $container_class . '">%s</div>';
 			
+			if( !empty( $strCenteredWrap ) ) {
+				$strWrap = str_replace( '%s', $strCenteredWrap, $strWrap ); // wrap centered toot into original div tag to avoid breaking the supplied CSS
+			}
+			
 			/*
 			if( !empty( $no_iframe ) && ( !empty( $height) || !empty( $width ) ) {
 				
@@ -332,6 +342,22 @@ class __mastodon_embed_plugin {
 			}
 		}
 	
+		return $return;
+	}
+	
+	/**
+	 * Own empty() implementation, because shortcode attributes might be interpreted as strings and thus conversion to integer might not work out properly
+	 */
+	 
+	function is_empty_attr( $data, $empty_strings = array('null', 'false', '0' ) ) {
+		$return = true;
+		
+		if( is_string( $data ) && $data != '' ) {
+			if( in_array( strtolower( $data ), $empty_strings, true ) != false ) {
+				$return = false;
+			}
+		}
+		
 		return $return;
 	}
 	

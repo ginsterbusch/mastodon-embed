@@ -3,7 +3,7 @@ Contributors: usability.idealist
 Tags: mastodon, social networks, social, opensocial, twitter, embed, shortcode, status, toot
 Requires at least: 4.5
 Tested up to: 4.8
-Stable tag: 2.4
+Stable tag: 2.4.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -27,11 +27,15 @@ Currently implemented features:
 * Optional manual cache refresh option via shortcode attribute
 * improved debugging (WP_DEBUG + extended constants)
 * Force URL scheme attribute ('force_scheme') to further improve SSL only vs. unencrypted http-only sites (ie. fun with SSL enforcement in WP ;))
-* Center on a specific toot in a conversation ('center'); enabled by default
+* Center on a specific toot in a conversation (disable with 'no_center'); requires the direct embedding feature being enabled (parameter 'no_iframe')
+
+= Work in progress =
+
+* Auto-Embed: An oEmbed-like embedding option (ie. just drop the URL into your post and its being automagickally turned into a proper Mastodon status embed)
 
 = Future plans = 
 
-* Create an oEmbed-like embedding option (ie. just drop the URL into your post and its being automagickally turned into a proper Mastodon status embed)
+* Optionally use the regular Mastodon API to retrieve toots (requires a working mastodon user account)
 * Maybe a settings page or a custom config file
 * Shortcode insertion via a nice user interface in the editor
 * Properly implemented shortcode asset loading via a separate class / plugin
@@ -78,17 +82,29 @@ All available shortcode attributes:
 * no_fa' - Alias
 * flush - set this to 1 to refresh the embed cache; update post after this, give its frontend view a spin, and then remove it afterwards ;)
 * force_scheme - set this to either 'http' or 'https' to enforce using this URL scheme (ie. protocol); primary use is to improve the SSL behaviour in WP
-* center - Pick out a specific toot from a conversation. Enabled by default. To disable, set this parameter to `0`.
+* no_center - Disables the "centering" function, which focuses on a single specific toot
 * enable_debug - Explicitely enables the debug mode
 
 = Q. The embedding does not work =
 A. First test if there are any shortcode-interferring plugins. That could also be the original mastodon-embed. Aside of that, there was a mistake in the documentation before version 2.2.3, incorrectly stating the shortcode tag is 'mastodon_embed', while in reality it's **mastodon**.
+
+= Q. "Center"ing on a specific toot does not work =
+A. This currently only works with directly embedding the toot (set 'no_iframe' to '1'), not with the iframe method. Probably, the latter is never going to work, thanks to XSS / same-site policies in modern browsers.
 
 = Q. I have a question =
 A. Chances are, someone else has asked it. Either check out the support forum at WP or take a look at the official issue tracker:
 http://github.com/ginsterbusch/mastodon-embed/issues
 
 == Changelog ==
+
+= 2.4.3 =
+
+* Replaced 'center' parameter with 'no_center', thus reversing its functionality (kinda); ie. center function is now enabled by default, but still only works in conjunction with the 'no_iframe' attribute set to '1'
+
+= 2.4.2 = 
+
+* Added internal implementation of empty() for usage with shortcode attributes
+* Updated the documentation to clarify that the newly introduced 'center' function works only in combination with directly embedded toots (parameter 'no_iframe')
 
 = 2.4 =
 
