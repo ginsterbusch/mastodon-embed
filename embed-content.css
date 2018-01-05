@@ -3,6 +3,7 @@
  */
 .mastodon-embed {
   font-family: "Roboto", "Ubuntu Sans", "Nimbus Sans L", "Droid Sans", Arial, sans-serif;
+  margin: 1.5rem 0;
 }
 .mastodon-embed .activity-stream {
   box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
@@ -107,9 +108,27 @@
 }
 .mastodon-embed .detailed-status.light .status__content {
   color: #282c37;
+  /*
+			.e-content.show-nsfw {
+				display: block !important;
+				transition: all 0.3s;
+			}*/
 }
 .mastodon-embed .detailed-status.light .status__content a {
   color: #2b90d9;
+}
+.mastodon-embed .detailed-status.light .status__content a.status__content__spoiler-link {
+  border-radius: 2px;
+  display: inline-block;
+  /**
+				 * Original (and user-unfriendly):
+				 */
+  font-size: 0.85rem;
+  font-weight: 500;
+  padding: 0 6px;
+  text-transform: uppercase;
+  background-color: #9baec8;
+  color: #fff;
 }
 .mastodon-embed .detailed-status.light .detailed-status__meta {
   color: #9baec8;

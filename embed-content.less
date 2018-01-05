@@ -7,6 +7,7 @@
 .mastodon-embed {
 
 	font-family: @mastodon_embed_font;
+	margin: 1.5rem 0;
 
 	.activity-stream {
 		box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
@@ -139,6 +140,32 @@
 			a {
 				color: #2b90d9;
 			}
+			
+			a.status__content__spoiler-link {
+				border-radius: 2px;
+				display: inline-block;
+				
+				/**
+				 * Original (and user-unfriendly):
+				 */
+				//font-size: 11px;
+				
+				font-size: 0.85rem;
+				
+				font-weight: 500;
+				padding: 0 6px;
+				text-transform: uppercase;
+				
+				background-color: #9baec8;
+				color: #fff;
+			}
+			
+			/*
+			.e-content.show-nsfw {
+				display: block !important;
+				transition: all 0.3s;
+			}*/
+			
 		}
 		
 		

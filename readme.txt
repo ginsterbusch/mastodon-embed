@@ -2,7 +2,7 @@
 Contributors: usability.idealist
 Tags: mastodon, social networks, social, opensocial, twitter, embed, shortcode, status, toot
 Requires at least: 4.5
-Tested up to: 4.8
+Tested up to: 4.9
 Stable tag: 2.4.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -20,7 +20,9 @@ Currently implemented features:
 * working caching
 * proper shortcode initialization
 * backward compatiblity for mastodon-embed
-* fallback to "direct" embeds if embed via iframe is forbidden (eg. when testing on localhost); use shortcode attribute `no_iframe` and set it to `1` (eg. `[mastodon no_iframe="1"]http://my.mastodon.instance/@mastodon_user/12345[/mastodon]`)
+* directly embed toots instead of relying on the iframe method
+* fallback: if direct import fails, try using the iframe method; add the attribute `use_iframe` (alias: `iframe`) to the shortcode and set it to `1` (eg. `[mastodon use_iframe="1"]http://my.mastodon.instance/@mastodon_user/12345[/mastodon]`)
+* former fallback: to "direct" embeds if embed via iframe is forbidden (eg. when testing on localhost); use shortcode attribute `no_iframe` and set it to `1` (eg. `[mastodon no_iframe="1"]http://my.mastodon.instance/@mastodon_user/12345[/mastodon]`)
 * Reverse-engineered CSS file (including LESS base) and override option (filter: mastodon_content_style)
 * Uses different shortcode ('mastodon' instead of 'mastodon') if the original mastodon-embed is active as well
 * Uses simple_html_dom class instead of XPath
@@ -31,12 +33,13 @@ Currently implemented features:
 
 = Work in progress =
 
-* Auto-Embed: An oEmbed-like embedding option (ie. just drop the URL into your post and its being automagickally turned into a proper Mastodon status embed)
+* Settings screen in the admin interface
+* Custom config file for advanced users (just drop it into the uploads folder, and tadaa! instant settings)
 
 = Future plans = 
 
+* Auto-Embed: An oEmbed-like embedding option (ie. just drop the URL into your post and its being automagickally turned into a proper Mastodon status embed)
 * Optionally use the regular Mastodon API to retrieve toots (requires a working mastodon user account)
-* Maybe a settings page or a custom config file
 * Shortcode insertion via a nice user interface in the editor
 * Properly implemented shortcode asset loading via a separate class / plugin
 
@@ -89,13 +92,17 @@ All available shortcode attributes:
 A. First test if there are any shortcode-interferring plugins. That could also be the original mastodon-embed. Aside of that, there was a mistake in the documentation before version 2.2.3, incorrectly stating the shortcode tag is 'mastodon_embed', while in reality it's **mastodon**.
 
 = Q. "Center"ing on a specific toot does not work =
-A. This currently only works with directly embedding the toot (set 'no_iframe' to '1'), not with the iframe method. Probably, the latter is never going to work, thanks to XSS / same-site policies in modern browsers.
+A. This only works with directly embedding the toot, not with the iframe method. Probably, the latter is never going to work, thanks to XSS / same-site policies in modern browsers.
 
 = Q. I have a question =
 A. Chances are, someone else has asked it. Either check out the support forum at WP or take a look at the official issue tracker:
 http://github.com/ginsterbusch/mastodon-embed/issues
 
 == Changelog ==
+
+= 2.5 =
+
+* "direct embed" function is the default behaviour
 
 = 2.4.3 =
 

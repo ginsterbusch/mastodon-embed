@@ -2,8 +2,8 @@
 /**
  * Plugin Name: Mastodon Embed Improved
  * Plugin URI: http://f2w.de/mastodon-embed
- * Description: A plugin to embed Mastodon statuses. Complete rewrite of <a href="https://github.com/DavidLibeau/mastodon-tools">Mastodon embed</a> by David Libeau. Tested up to WP 4.8-nightly
- * Version: 2.4.3
+ * Description: A plugin to embed Mastodon statuses. Complete rewrite of <a href="https://github.com/DavidLibeau/mastodon-tools">Mastodon embed</a> by David Libeau. Tested up to WP 5.0-nightly
+ * Version: 2.5
  * Author: Fabian Wolf
  * Author URI: http://usability-idealist.de
  * License: GNU GPL v2 or later
@@ -14,7 +14,8 @@
  * - working caching
  * - proper shortcode initialization
  * - backward compatiblity for mastodon-embed
- * - fallback to "direct" embeds if embed via iframe is forbidden (eg. when testing on localhost)
+ * - directly embed toots instead of relying on the iframe method
+ * - fallback method: iframe (explicitely enabled via shortcode attribute 'use_iframe' (alias: 'iframe') and set it to '1'
  * - direct embed with reverse-engineered CSS file (including LESS base) and override option (filter: mastodon_embed_content_style)
  * - uses different shortcode ('mastodon_embed' instead of 'mastodon') if the original mastodon-embed is active as well
  * - uses simple_html_dom instead of XPath
@@ -22,7 +23,7 @@
  * - improved debugging (WP_DEBUG + extended constants)
  * - alias for no_iframe attribute: disable_iframe
  * - force URL scheme attribute ('force_scheme') to further improve SSL only vs. unencrypted http-only sites (ie. fun with SSL enforcement in WP ;))
- * - automatically picks out specific single toot; to display the complete conversation, set 'no_center' to 1; also, only works with "direct" toot embedding (ie. parameter "no_iframe" set to 1)
+ * - automatically picks out specific single toot; to display the complete conversation, set 'no_center' to 1; also, only works with "direct" toot embedding
  */
 
 if( !class_exists( 'simple_html_dom' ) ) {
@@ -76,18 +77,35 @@ class __mastodon_embed_plugin {
 	function init_assets() {
 		/**
 		 * @hook mastodon_embed_content_style		URL to the direct embed content CSS.
-		 * @hook mastodon:embed_font_awesome_url	Font Awesome CDN URL. Replace with your own or set to null to disable it from being loaded at all.
+		 * @hook mastodon_embed_content_style_dark	URL to the dark themed embed content CSS.
+		 * @hook mastodon_embed_font_awesome_url	Font Awesome CDN URL. Replace with your own or set to null to disable it from being loaded at all.
 		 */
 		
+		
 		$embed_content_style = apply_filters( $this->pluginPrefix . 'content_style', plugin_dir_url(__FILE__) . 'embed-content.css' );
+		$embed_content_style_dark = apply_filters( $this->pluginPrefix . 'content_style_dark', plugin_dir_url( __FILE__ ) . 'embed-content-dark.css' );
+		
 		$embed_content_fa_url = apply_filters( $this->pluginPrefix . 'font_awesome_url', '//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css' );
 		
 		if( !empty( $embed_content_fa_url ) ) {
 			wp_register_style( $this->pluginPrefix . 'font-awesome', $embed_content_fa_url );
 		}
 		
-		wp_register_style( $this->pluginPrefix . 'content', $embed_content_style );
+		if( !empty( $embed_content_style ) || !empty( $embed_content_style_dark ) ) {
+			$strEmbedStyleURL = ( empty( $embed_content_style ) ? $embed_content_style_dark : $embed_content_style );
+			
+			wp_register_style( $this->pluginPrefix . 'content', $strEmbedStyleURL );
+		}
 		
+		/**
+		 * @hook mastodon_embed_js_helpers_url	URL to the default Javascript helper bundle.
+		 */
+		 
+		$embed_js_helpers = apply_filters( $this->pluginPrefix . 'js_helpers_url', plugin_dir_url( __FILE__ ) . 'mastodon-embed.js' );
+		
+		if( !empty( $embed_js_helpers ) ) {
+			wp_register_script( $this->pluginPrefix . 'helpers', $embed_js_helpers, array('jquery' ), false, true );
+		}
 	}
 	
 	
@@ -122,16 +140,22 @@ class __mastodon_embed_plugin {
 		/**
 		 * NOTE: Insecure - use default attributes + @function wp_parse_args or @function shortcode_atts (do essentially the same)
 		 */
+		 
+		/**
+		 * @hook mastodon_embed_default_attributes - The default shortcode attributes; admin settings or custom config file hooks into this, too
+		 */
 
-		$default_atts = array(
+		$default_atts = apply_filters( $this->pluginPrefix . 'default_attributes', array(
 			'url' => '', // backward compatiblity (avoid having to increase the major version number)
 			'container_class' => 'mastodon-embed',
 			'width' => 700,
 			'height' => 200,
 			'css' => 'overflow: hidden',
 			'cache_timeout' => 24 * 60 * 60, // in seconds; defaults to 1 day
-			'no_iframe' => 0, // workaround for localhost / testing purposes
-			'disable_iframe' => 0, // alias
+			'use_iframe' => 0, // workaround for localhost / testing purposes
+			'iframe' => 0, // alias
+			'no_iframe' => 1, // backward compatiblity to < 2.5
+			'disable_iframe' => 0, // backward compatiblity mode
 			'disable_font_awesome' => 0,
 			'force_scheme' => '',
 			'no_fa' => 0,
@@ -139,7 +163,8 @@ class __mastodon_embed_plugin {
 			/*'center' => 1, // picks out only the main toot out of a conversation (entry-center class)*/
 			'no_center' => 0, // disable "centering" function
 			'enable_debug' => 0, // specific debug parameter
-		);
+			'show_delay' => 350, // in ms
+		) );
 		
 		$atts = shortcode_atts( $default_atts, $atts );
 		
@@ -192,13 +217,21 @@ class __mastodon_embed_plugin {
 			$http_code = wp_remote_retrieve_response_code($response);
 			$body = wp_remote_retrieve_body( $response );
 			
+			if( !empty( $iframe ) || !empty( $use_iframe ) ) {
+				$iframe = true;
+			}
+			
+			/**
+			 * NOTE: Obsolete code from @version 2.4.3
+			 */
+			
+			/*
 			if( !empty( $no_iframe ) || !empty( $disable_iframe ) ) {
 				if( !empty( $disable_iframe ) ) {
 					$no_iframe = true;
 				}
-			
 			}
-			
+			*/
 			/**
 			 * NOTE: Switch case is so much easier .. not to mention a proper $return.
 			 */
@@ -223,7 +256,7 @@ class __mastodon_embed_plugin {
 				
 					
 					
-					if( empty( $no_iframe ) ) { // use iframe
+					if( !empty( $iframe ) ) { // use iframe
 						$atom_url = $dom->find( "link[type='application/atom+xml']", 0);
 						
 						
@@ -260,11 +293,25 @@ class __mastodon_embed_plugin {
 								}
 							}
 							
+							
 							wp_enqueue_style( $this->pluginPrefix . 'content' );
 							
 							if( empty( $disable_font_awesome ) && empty( $no_fa ) ) {
 								wp_enqueue_style( $this->pluginPrefix . 'font-awesome' );
 							}
+							
+							
+							// always load JS
+							wp_enqueue_script( $this->pluginPrefix . 'helpers' );
+							
+							// check if nsfw / cw is enabled
+							/*if( strpos( $embed_content, 'class="p-summary' ) !== false || strpos( $embed_content, 'class="status__content__spoiler-link' ) !== false ) {
+								// if so, enqueue JS
+								wp_enqueue_script( $this->pluginPrefix . 'helpers' );
+							}*/
+							
+							
+							
 						}
 						
 						
@@ -328,12 +375,7 @@ class __mastodon_embed_plugin {
 			if( !empty( $strCenteredWrap ) ) {
 				$strWrap = str_replace( '%s', $strCenteredWrap, $strWrap ); // wrap centered toot into original div tag to avoid breaking the supplied CSS
 			}
-			
-			/*
-			if( !empty( $no_iframe ) && ( !empty( $height) || !empty( $width ) ) {
 				
-			}*/
-			
 			$return = sprintf( $strWrap, $return );
 			
 			// append debug data (if available)
