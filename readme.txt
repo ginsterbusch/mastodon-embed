@@ -2,8 +2,8 @@
 Contributors: usability.idealist
 Tags: mastodon, social networks, social, opensocial, twitter, embed, shortcode, status, toot
 Requires at least: 4.5
-Tested up to: 4.9
-Stable tag: 2.4.3
+Tested up to: 5.0-nightly
+Stable tag: 2.5
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -79,7 +79,9 @@ All available shortcode attributes:
 * height - Height of the iframe embed. Defaults to 200.
 * css - Custom CSS for the iframe; Defaults to: `overflow: hidden`.
 * cache_timeout - Defaults to 24 * 60 * 60 = 1 day. After this duration, the Mastodon status URL will be refreshed.
-* no_iframe - Disable iframe embed and use the direct content embedding instead. Automatically will load the custom CSS file, too.
+* use_iframe - Enable iframe embed method.
+* iframe - Alias for 'use_iframe'.
+* no_iframe - Kept for backward compatiblity to version <= 2.4.3. Original function: Disable iframe embed and use the direct content embedding instead. Automatically will load the custom CSS file, too.
 * disable_iframe - Alias for 'no_iframe'.
 * disable_font_awesome - Disable loading of Font Awesome when using the direct content embed (see above attribute), eg. if your theme is already including Font Awesome or you want to use different font icons (which have to be compatible to Font Awesome though).
 * no_fa' - Alias
